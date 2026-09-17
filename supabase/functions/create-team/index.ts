@@ -1,2 +1,13 @@
-import { adminClient, json, user } from "../_shared/http.ts";
-Deno.serve(async req => { if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405); const u = await user(req); if (!u) return json({ error: "unauthorized" }, 401); const { name } = await req.json(); if (!name || String(name).trim().length < 2) return json({ error: "name_required" }, 400); const admin = adminClient(); const { data: team, error } = await admin.from("teams").insert({ name: String(name).trim(), created_by: u.id }).select().single(); if (error) return json({ error: error.message }, 400); const { error: memberError } = await admin.from("team_members").insert({ team_id: team.id, user_id: u.id, role: "LIDER" }); if (memberError) return json({ error: memberError.message }, 400); return json({ team }, 201); });
+import { client, json, user } from "../_shared/http.ts";
+
+Deno.serve(async req => {
+  if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
+  if (!await user(req)) return json({ error: "unauthorized" }, 401);
+  let body: { name?: string };
+  try { body = await req.json(); } catch { return json({ error: "invalid_json" }, 400); }
+  const name = String(body.name ?? "").trim();
+  if (name.length < 2 || name.length > 120) return json({ error: "name_required" }, 400);
+  const { data, error } = await client(req).rpc("create_team", { p_name: name });
+  if (error) return json({ error: error.message }, 400);
+  return json(data, 201);
+});

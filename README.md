@@ -1,35 +1,37 @@
-# Sales Network
+# Sales Network Secure
 
-Aplicación Android Compose para equipos de venta, con catálogo web Next.js, Supabase y Vercel.
+Aplicación Android Compose y catálogo Next.js para equipos de venta, con Supabase Auth, PostgreSQL/RLS y Edge Functions.
 
 ## Estado
 
-La app Android mantiene datos demo locales. `web/` contiene un catálogo Next.js funcional como base visual. `supabase/` contiene la primera migración PostgreSQL/RLS y funciones Edge para invitaciones y carrito. Los conectores reales se activan después de configurar un proyecto Supabase y sus secretos.
+Esta repo es una copia endurecida de `sales-network-app`. Se eliminaron las cuentas demo, contraseñas maestras y escrituras financieras directas. La base segura está documentada en [`docs/SECURITY_HARDENING.md`](docs/SECURITY_HARDENING.md).
 
 ## Estructura
 
-- `app/`: aplicación Android existente.
-- `web/`: catálogo privado y páginas de carrito/pedidos para Vercel.
+- `app/`: aplicación Android Compose.
+- `web/`: catálogo Next.js y flujos de carrito, clientes y pedidos.
 - `supabase/migrations/`: esquema y políticas RLS.
-- `supabase/functions/`: endpoints protegidos.
-- `docs/`: arquitectura, API y despliegue.
+- `supabase/functions/`: endpoints autenticados.
+- `docs/`: arquitectura, API, despliegue y seguridad.
 
 ## Desarrollo web
 
 ```powershell
 cd web
-npm install
+npm ci
 npm run build
 ```
 
-Configura las variables de `.env.example` en Vercel. La clave administrativa nunca debe estar en `NEXT_PUBLIC_*`.
+Configura `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Nunca pongas `SUPABASE_SERVICE_ROLE_KEY` en `NEXT_PUBLIC_*`.
 
 ## Android
 
 ```powershell
 .\gradlew.bat :app:testDebugUnitTest
 .\gradlew.bat :app:lintDebug
+.\gradlew.bat :app:assembleDebug
 ```
 
-Consulta `UI_UX_GUIA.md` para los criterios de experiencia y `docs/DEPLOYMENT.md` para publicar.
+## Supabase
 
+Aplica las migraciones en orden y configura Auth con verificación de correo y recuperación. Usa un proyecto de staging para validar el aislamiento entre dos equipos antes de producción.

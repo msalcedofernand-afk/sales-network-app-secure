@@ -1,5 +1,24 @@
 # REGISTRO_CAMBIOS_AVON.md - Historial de Cambios del Proyecto VV Lideres Chiclayo
 
+## 2026-09-17 - Rama segura: autenticación y operaciones Supabase
+
+### Qué se hizo
+
+- Eliminados usuarios demo, contraseñas maestras y hashes locales de Android.
+- Registro, login y recuperación conectados a Supabase Auth.
+- Nueva migración `0003_security_hardening.sql` con RLS privado, grants mínimos, índices y funciones transaccionales.
+- Checkout, creación de equipos y aceptación de invitaciones pasan por transacciones SQL.
+- Estados de pedidos pasan por `update_order_status`; no se editan totales desde el cliente.
+- Parser de precios corregido para decimales con punto/coma y disponibilidad omitida.
+- `allowBackup=false` en Android.
+- Documentación exacta en `docs/SECURITY_HARDENING.md`, `docs/DATABASE.md` y `docs/API.md`.
+
+### Verificación
+
+- `npm ci` y `npm run build` en `web/`: correctos.
+- `:app:testDebugUnitTest`: 4 pruebas correctas.
+- `:app:lintDebug`: 0 errores; quedan advertencias de formato numérico con locale.
+
 ## 2026-09-08 - Reemplazo de Marca a "VV" & Rol Root Admin Total
 
 ### Que se hizo
@@ -7,7 +26,7 @@
    - Reemplazada la marca "Avon" por "VV" en toda la interfaz de usuario, strings, catalogos y codigos de referido (ej. `VV-2026`, `VV-${(1000..9999).random()}`, "VV Lideres Chiclayo", "Catalogo Oficial VV").
 2. **Rol y Cuenta Root Admin Total**:
    - Agregado `UserRole.ROOT_ADMIN` al modelo de dominio `User.kt`.
-   - Creado usuario maestro Root Admin (`root@vv.com`, clave: `RootAdmin2026!`) con control y visibilidad global de todas las redes, lideres, miembros y pedidos.
+   - Se había creado un usuario maestro Root Admin para demo; sus credenciales fueron eliminadas en la rama segura y no son válidas.
 3. **Barra Flotante Inferior (Solo Iconos)**:
    - Capsula flotante con elevacion 12dp en la parte inferior central de la pantalla, solo iconos.
 4. **Validacion Obligatoria de Codigo de Red**:

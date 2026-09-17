@@ -33,7 +33,7 @@ fun LoginRegisterScreen(
     onRegisterLeader: (name: String, email: String, password: String) -> Result<Any>,
     onRegisterMember: (name: String, email: String, password: String, leaderCode: String) -> Result<Any>,
     onLoginClick: (email: String, password: String) -> Result<Any>,
-    onResetPassword: (email: String, newPassword: String) -> Result<Boolean> = { _, _ -> Result.success(true) }
+    onResetPassword: (email: String) -> Result<Boolean> = { Result.success(true) }
 ) {
     var isRegisterMode by rememberSaveable { mutableStateOf(false) }
     var selectedRole by rememberSaveable { mutableStateOf(UserRole.LIDER) }
@@ -47,7 +47,6 @@ fun LoginRegisterScreen(
     var errorMessage by rememberSaveable { mutableStateOf<String?>(null) }
     var showResetDialog by remember { mutableStateOf(false) }
     var resetEmail by remember { mutableStateOf("") }
-    var resetNewPassword by remember { mutableStateOf("") }
     var resetMessage by remember { mutableStateOf<String?>(null) }
 
     Box(
@@ -264,7 +263,6 @@ fun LoginRegisterScreen(
                     TextButton(
                         onClick = {
                             resetEmail = email.trim()
-                            resetNewPassword = ""
                             resetMessage = null
                             showResetDialog = true
                         },
@@ -277,34 +275,6 @@ fun LoginRegisterScreen(
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Acceso rapido demo:",
-                        fontSize = 11.sp,
-                        color = MaterialTheme.colorScheme.outline,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        SuggestionChip(
-                            onClick = {
-                                email = "root@vv.com"
-                                password = "RootAdmin2026!"
-                            },
-                            label = { Text("Root Admin", fontSize = 11.sp) }
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        SuggestionChip(
-                            onClick = {
-                                email = "lider.chiclayo@vv.com"
-                                password = "LiderVV2026!"
-                            },
-                            label = { Text("Lider VV", fontSize = 11.sp) }
-                        )
-                    }
                 }
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -327,20 +297,12 @@ fun LoginRegisterScreen(
             title = { Text("Recuperar Contrasena", fontWeight = FontWeight.Bold) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Ingresa tu correo registrado y tu nueva contrasena:", fontSize = 13.sp)
+                    Text("Ingresa tu correo registrado y te enviaremos un enlace seguro para cambiar la contrasena:", fontSize = 13.sp)
                     OutlinedTextField(
                         value = resetEmail,
                         onValueChange = { resetEmail = it },
                         label = { Text("Correo Electronico") },
                         singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    OutlinedTextField(
-                        value = resetNewPassword,
-                        onValueChange = { resetNewPassword = it },
-                        label = { Text("Nueva Contrasena (minimo 6 caracteres)") },
-                        singleLine = true,
-                        visualTransformation = PasswordVisualTransformation(),
                         modifier = Modifier.fillMaxWidth()
                     )
                     if (resetMessage != null) {
@@ -356,9 +318,9 @@ fun LoginRegisterScreen(
             confirmButton = {
                 Button(
                     onClick = {
-                        val res = onResetPassword(resetEmail.trim(), resetNewPassword)
+                        val res = onResetPassword(resetEmail.trim())
                         if (res.isSuccess) {
-                            resetMessage = "OK: Contrasena actualizada correctamente. Ya puedes iniciar sesion."
+                            resetMessage = "OK: Revisa tu correo y completa el cambio de contrasena."
                         } else {
                             resetMessage = res.exceptionOrNull()?.message ?: "Error al actualizar."
                         }

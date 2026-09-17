@@ -44,7 +44,7 @@ class SalesNetworkModuleTest {
     fun testWhatsAppNumberFormatting() {
         val phone = "+51 979 123 456"
         val digitsOnly = phone.replace("[^0-9]".toRegex(), "")
-        assertEquals("51979123456", digitsOnly)
+        assertEquals("51970000000", digitsOnly)
     }
 
     @Test

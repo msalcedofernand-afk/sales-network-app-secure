@@ -6,269 +6,148 @@ import com.salesnetwork.avon.app.domain.model.UserRole
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import java.util.UUID
-import java.security.MessageDigest
+import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
-import org.json.JSONObject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import java.util.UUID
 
+/**
+ * Authentication is remote-only. No passwords, demo accounts or local auth
+ * bypasses are stored in the APK or in SharedPreferences.
+ */
 class LeaderNetworkRepository private constructor(context: Context) {
-
-    private val prefs = context.getSharedPreferences("leader_network_prefs", Context.MODE_PRIVATE)
-
+    private val appContext = context.applicationContext
     private val usersMap = mutableMapOf<String, User>()
-    private val leaderCodesSet = mutableSetOf<String>()
-    private val passwordHashes = mutableMapOf<String, String>()
-
     private val _currentUser = MutableStateFlow<User?>(null)
     val currentUser: StateFlow<User?> = _currentUser.asStateFlow()
 
-    init {
-        loadAllUsersFromPrefs()
-        _currentUser.value = loadCurrentUserFromPrefs()
-    }
-
-    fun registerLeader(name: String, email: String, password: String): Result<User> {
-        val cleanEmail = email.trim().lowercase()
-        if (usersMap.values.any { it.email.equals(cleanEmail, ignoreCase = true) }) {
-            return Result.failure(Exception("El correo '$cleanEmail' ya se encuentra registrado."))
-        }
-        val referralCode = "VV-${(1000..9999).random()}"
-        val leader = User(
-            id = UUID.randomUUID().toString(),
-            name = name.trim(),
-            email = cleanEmail,
-            role = UserRole.LIDER,
-            referralCode = referralCode,
-            leaderCode = null
-        )
-        usersMap[leader.id] = leader
-        passwordHashes[leader.id] = hashPassword(password)
-        leaderCodesSet.add(referralCode)
-        persistUser(leader)
-        saveActiveUserSession(leader)
-        _currentUser.value = leader
-        return Result.success(leader)
-    }
+    fun registerLeader(name: String, email: String, password: String): Result<User> =
+        signUp(name, email, password, UserRole.LIDER, null)
 
     fun registerMember(name: String, email: String, password: String, leaderCode: String): Result<User> {
-        val cleanLeaderCode = leaderCode.trim().uppercase()
-        if (cleanLeaderCode.isBlank() || !leaderCodesSet.contains(cleanLeaderCode)) {
-            return Result.failure(Exception("El codigo de red '$cleanLeaderCode' no es valido o no existe. Para registrarte como vendedor debes solicitar el codigo a tu Lider."))
-        }
-        val cleanEmail = email.trim().lowercase()
-        if (usersMap.values.any { it.email.equals(cleanEmail, ignoreCase = true) }) {
-            return Result.failure(Exception("El correo '$cleanEmail' ya se encuentra registrado."))
-        }
-        val member = User(
-            id = UUID.randomUUID().toString(),
-            name = name.trim(),
-            email = cleanEmail,
-            role = UserRole.MIEMBRO,
-            referralCode = "MBR-${(1000..9999).random()}",
-            leaderCode = cleanLeaderCode
-        )
-        usersMap[member.id] = member
-        passwordHashes[member.id] = hashPassword(password)
-        persistUser(member)
-        saveActiveUserSession(member)
-        _currentUser.value = member
-        return Result.success(member)
+        val code = leaderCode.trim().uppercase()
+        if (code.isBlank()) return Result.failure(IllegalArgumentException("El código de red es obligatorio."))
+        return signUp(name, email, password, UserRole.MIEMBRO, code)
     }
 
     fun login(email: String, password: String): Result<User> {
         val cleanEmail = email.trim().lowercase()
-
-        // Verificacion especial para Usuario Root Admin Total y Lideres
-        val user = usersMap.values.firstOrNull { it.email.equals(cleanEmail, ignoreCase = true) }
-        if (user != null) {
-            val isRootAdminMatch = user.role == UserRole.ROOT_ADMIN && (password == "RootAdmin2026!" || password == "RootAdmin2026" || password == "123456")
-            val isLeaderMatch = user.role == UserRole.LIDER && (password == "LiderVV2026!" || password == "123456")
-            val isHashMatch = passwordHashes[user.id] == hashPassword(password)
-            if (isHashMatch || isRootAdminMatch || isLeaderMatch) {
-                saveActiveUserSession(user)
-                _currentUser.value = user
-                return Result.success(user)
-            }
-        }
-
-        // Intento Supabase para sincronizacion remota
-        val remote = runBlocking(Dispatchers.IO) { loginSupabase(cleanEmail, password) }
-        if (remote.isSuccess) {
-            val remoteUser = remote.getOrThrow()
-            usersMap[remoteUser.id] = remoteUser
-            persistUser(remoteUser)
-            saveActiveUserSession(remoteUser)
-            _currentUser.value = remoteUser
-            return Result.success(remoteUser)
-        }
-
-        return Result.failure(Exception("Correo o contrasena incorrectos."))
+        if (cleanEmail.isBlank() || password.isBlank()) return Result.failure(IllegalArgumentException("Correo y contraseña son obligatorios."))
+        return runCatching {
+            val auth = request("auth/v1/token?grant_type=password", JSONObject().put("email", cleanEmail).put("password", password))
+            val user = userFrom(auth.getJSONObject("user"), UserRole.MIEMBRO)
+            usersMap[user.id] = user
+            _currentUser.value = user
+            user
+        }.onFailure { _currentUser.value = null }
     }
 
-    fun resetPassword(email: String, newPassword: String): Result<Boolean> {
+    fun sendPasswordReset(email: String): Result<Boolean> {
         val cleanEmail = email.trim().lowercase()
-        val user = usersMap.values.firstOrNull { it.email.equals(cleanEmail, ignoreCase = true) }
-            ?: return Result.failure(Exception("No existe ninguna cuenta con el correo '$cleanEmail'."))
-        if (newPassword.length < 6) {
-            return Result.failure(Exception("La nueva contrasena debe tener al menos 6 caracteres."))
-        }
-        val newHash = hashPassword(newPassword)
-        passwordHashes[user.id] = newHash
-        persistUser(user)
-        return Result.success(true)
-    }
-
-    private fun loginSupabase(email: String, password: String): Result<User> {
-        return try {
-            val connection = (URL("https://xceqwexdufdgnmctsxcg.supabase.co/auth/v1/token?grant_type=password").openConnection() as HttpURLConnection).apply {
-                requestMethod = "POST"
-                doOutput = true
-                connectTimeout = 8000
-                readTimeout = 8000
-                setRequestProperty("apikey", SUPABASE_ANON_KEY)
-                setRequestProperty("Content-Type", "application/json")
-            }
-            connection.outputStream.use { it.write(JSONObject().put("email", email).put("password", password).toString().toByteArray()) }
-            val body = (if (connection.responseCode in 200..299) connection.inputStream else connection.errorStream)
-                ?.bufferedReader()?.use { it.readText() }.orEmpty()
-            if (connection.responseCode !in 200..299) return Result.failure(Exception("Correo o contrasena incorrectos."))
-            val json = JSONObject(body)
-            val authUser = json.getJSONObject("user")
-            val metadata = authUser.optJSONObject("user_metadata")
-            Result.success(User(
-                id = authUser.getString("id"),
-                name = metadata?.optString("name").orEmpty().ifBlank { email.substringBefore("@").replaceFirstChar { it.uppercase() } },
-                email = authUser.optString("email", email),
-                role = UserRole.LIDER,
-                referralCode = "VV-2026"
-            ))
-        } catch (_: Exception) {
-            Result.failure(Exception("No se pudo conectar."))
+        if (cleanEmail.isBlank()) return Result.failure(IllegalArgumentException("El correo es obligatorio."))
+        return runCatching {
+            request("auth/v1/recover", JSONObject().put("email", cleanEmail).put("redirect_to", RESET_REDIRECT))
+            true
         }
     }
-
-    private fun hashPassword(password: String): String = MessageDigest.getInstance("SHA-256")
-        .digest(password.toByteArray()).joinToString("") { "%02x".format(it) }
 
     fun logout() {
-        prefs.edit().remove("active_user_id").apply()
         _currentUser.value = null
+        usersMap.clear()
     }
 
-    fun getMembersForLeader(referralCode: String): List<User> {
-        return usersMap.values.filter { it.leaderCode.equals(referralCode.trim(), ignoreCase = true) }
+    fun getMembersForLeader(referralCode: String): List<User> = usersMap.values.filter {
+        it.leaderCode.equals(referralCode.trim(), ignoreCase = true)
     }
 
-    fun getAllUsers(): List<User> {
-        return usersMap.values.toList()
-    }
+    fun getAllUsers(): List<User> = usersMap.values.toList()
 
-    private fun persistUser(user: User) {
-        val userIds = prefs.getStringSet("all_user_ids", mutableSetOf())?.toMutableSet() ?: mutableSetOf()
-        userIds.add(user.id)
-        prefs.edit()
-            .putStringSet("all_user_ids", userIds)
-            .putString("user_${user.id}_name", user.name)
-            .putString("user_${user.id}_email", user.email)
-            .putString("user_${user.id}_role", user.role.name)
-            .putString("user_${user.id}_refCode", user.referralCode)
-            .putString("user_${user.id}_leaderCode", user.leaderCode)
-            .putString("user_${user.id}_passwordHash", passwordHashes[user.id])
-            .apply()
-    }
-
-    private fun saveActiveUserSession(user: User) {
-        prefs.edit().putString("active_user_id", user.id).apply()
-    }
-
-    private fun loadAllUsersFromPrefs() {
-        // 1. Root Admin Total
-        val rootAdmin = User(
-            id = "root-admin-01",
-            name = "Administrador Central",
-            email = "root@vv.com",
-            role = UserRole.ROOT_ADMIN,
-            referralCode = "VV-ROOT",
-            leaderCode = null
-        )
-        usersMap[rootAdmin.id] = rootAdmin
-        passwordHashes[rootAdmin.id] = hashPassword("RootAdmin2026!")
-        leaderCodesSet.add(rootAdmin.referralCode)
-
-        // 2. Lider Demo VV
-        val defaultLeader = User(
-            id = "leader-demo-01",
-            name = "Lider VV Chiclayo",
-            email = "lider.chiclayo@vv.com",
-            role = UserRole.LIDER,
-            referralCode = "VV-2026",
-            leaderCode = null
-        )
-        usersMap[defaultLeader.id] = defaultLeader
-        passwordHashes[defaultLeader.id] = hashPassword("LiderVV2026!")
-        leaderCodesSet.add(defaultLeader.referralCode)
-
-        // 3. Usuario Demo
-        val demoUser = User(
-            id = "074fa307-28b6-4ec3-bc11-849b66c97675",
-            name = "Usuario Demo VV",
-            email = "demo@salesnetwork.test",
-            role = UserRole.LIDER,
-            referralCode = "VV-DEMO"
-        )
-        usersMap[demoUser.id] = demoUser
-        passwordHashes[demoUser.id] = hashPassword("ViveDemo-2026!")
-        leaderCodesSet.add(demoUser.referralCode)
-
-        // 4. Vendedoras Iniciales bajo Lider VV Chiclayo (VV-2026)
-        val initialMembers = listOf(
-            User(id = "mbr-01", name = "Rosa Benites", email = "rosa.benites@vv.com", role = UserRole.MIEMBRO, referralCode = "MBR-1001", leaderCode = "VV-2026", isActiveInCampaign = true),
-            User(id = "mbr-02", name = "Carmen Huaman", email = "carmen.huaman@vv.com", role = UserRole.MIEMBRO, referralCode = "MBR-1002", leaderCode = "VV-2026", isActiveInCampaign = true),
-            User(id = "mbr-03", name = "Lucia Sanchez", email = "lucia.sanchez@vv.com", role = UserRole.MIEMBRO, referralCode = "MBR-1003", leaderCode = "VV-2026", isActiveInCampaign = false),
-            User(id = "mbr-04", name = "Patricia Delgado", email = "patricia.delgado@vv.com", role = UserRole.MIEMBRO, referralCode = "MBR-1004", leaderCode = "VV-2026", isActiveInCampaign = true)
-        )
-        for (m in initialMembers) {
-            usersMap[m.id] = m
-            passwordHashes[m.id] = hashPassword("123456")
-        }
-
-        // Carga de usuarios guardados
-        val userIds = prefs.getStringSet("all_user_ids", emptySet()) ?: emptySet()
-        for (id in userIds) {
-            val name = prefs.getString("user_${id}_name", null) ?: continue
-            val email = prefs.getString("user_${id}_email", null) ?: continue
-            val roleStr = prefs.getString("user_${id}_role", UserRole.LIDER.name)
-            val refCode = prefs.getString("user_${id}_refCode", "VV-2026") ?: "VV-2026"
-            val leaderCode = prefs.getString("user_${id}_leaderCode", null)
-            val role = try { UserRole.valueOf(roleStr!!) } catch (e: Exception) { UserRole.LIDER }
-            val user = User(id = id, name = name, email = email, role = role, referralCode = refCode, leaderCode = leaderCode)
-            usersMap[id] = user
-            prefs.getString("user_${id}_passwordHash", null)?.let { passwordHashes[id] = it }
-            if (role == UserRole.LIDER || role == UserRole.ROOT_ADMIN) {
-                leaderCodesSet.add(refCode)
-            }
+    private fun signUp(name: String, email: String, password: String, role: UserRole, leaderCode: String?): Result<User> {
+        val cleanName = name.trim()
+        val cleanEmail = email.trim().lowercase()
+        if (cleanName.length !in 2..120 || cleanEmail.isBlank()) return Result.failure(IllegalArgumentException("Nombre y correo válidos son obligatorios."))
+        if (password.length < 8) return Result.failure(IllegalArgumentException("La contraseña debe tener al menos 8 caracteres."))
+        return runCatching {
+            val auth = request("auth/v1/signup", JSONObject()
+                .put("email", cleanEmail)
+                .put("password", password)
+                .put("data", JSONObject().put("name", cleanName)))
+            val accessToken = auth.optString("access_token")
+            if (accessToken.isBlank()) throw IllegalStateException("Cuenta creada. Confirma tu correo antes de iniciar sesión.")
+            val user = userFrom(auth.getJSONObject("user"), role, cleanName, leaderCode)
+            val function = if (role == UserRole.LIDER) "create-team" else "accept-invitation"
+            val payload = if (role == UserRole.LIDER) JSONObject().put("name", "$cleanName Team") else JSONObject().put("code", leaderCode)
+            callFunction(function, payload, accessToken)
+            usersMap[user.id] = user
+            _currentUser.value = user
+            user
         }
     }
 
-    private fun loadCurrentUserFromPrefs(): User? {
-        val activeId = prefs.getString("active_user_id", null) ?: return null
-        return usersMap[activeId]
+    private fun userFrom(json: JSONObject, fallbackRole: UserRole, fallbackName: String? = null, leaderCode: String? = null): User {
+        val appMetadata = json.optJSONObject("app_metadata")
+        val role = when (appMetadata?.optString("role")) {
+            "ROOT_ADMIN" -> UserRole.ROOT_ADMIN
+            "LIDER" -> UserRole.LIDER
+            else -> fallbackRole
+        }
+        val metadata = json.optJSONObject("user_metadata")
+        return User(
+            id = json.getString("id"),
+            name = metadata?.optString("name").orEmpty().ifBlank { fallbackName ?: json.optString("email").substringBefore("@") },
+            email = json.optString("email"),
+            role = role,
+            referralCode = metadata?.optString("referral_code").orEmpty().ifBlank { "USER-${UUID.randomUUID().toString().take(8).uppercase()}" },
+            leaderCode = leaderCode ?: metadata?.optString("leader_code")?.ifBlank { null }
+        )
+    }
+
+    private fun request(path: String, body: JSONObject): JSONObject {
+        val connection = (URL("$SUPABASE_URL/$path").openConnection() as HttpURLConnection).apply {
+            requestMethod = "POST"
+            doOutput = true
+            connectTimeout = 8_000
+            readTimeout = 8_000
+            setRequestProperty("apikey", SUPABASE_PUBLISHABLE_KEY)
+            setRequestProperty("Content-Type", "application/json")
+        }
+        connection.outputStream.use { it.write(body.toString().toByteArray(Charsets.UTF_8)) }
+        val responseBody = (if (connection.responseCode in 200..299) connection.inputStream else connection.errorStream)
+            ?.bufferedReader()?.use { it.readText() }.orEmpty()
+        if (connection.responseCode !in 200..299) {
+            val detail = runCatching { JSONObject(responseBody).optString("msg").ifBlank { JSONObject(responseBody).optString("error_description") } }.getOrNull()
+            throw IllegalStateException(detail?.ifBlank { null } ?: "No se pudo autenticar la cuenta.")
+        }
+        return if (responseBody.isBlank()) JSONObject() else JSONObject(responseBody)
+    }
+
+    private fun callFunction(name: String, body: JSONObject, accessToken: String): JSONObject {
+        val connection = (URL("$SUPABASE_URL/functions/v1/$name").openConnection() as HttpURLConnection).apply {
+            requestMethod = "POST"
+            doOutput = true
+            connectTimeout = 8_000
+            readTimeout = 8_000
+            setRequestProperty("apikey", SUPABASE_PUBLISHABLE_KEY)
+            setRequestProperty("Authorization", "Bearer $accessToken")
+            setRequestProperty("Content-Type", "application/json")
+        }
+        connection.outputStream.use { it.write(body.toString().toByteArray(Charsets.UTF_8)) }
+        val responseBody = (if (connection.responseCode in 200..299) connection.inputStream else connection.errorStream)
+            ?.bufferedReader()?.use { it.readText() }.orEmpty()
+        if (connection.responseCode !in 200..299) throw IllegalStateException("No se pudo completar el registro: ${connection.responseCode}")
+        return if (responseBody.isBlank()) JSONObject() else JSONObject(responseBody)
     }
 
     companion object {
-        private const val SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjZXE3ZXhkdWZkZ25tY3RzeGNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4MzgxMjgsImV4cCI6MjEwNDQxNDEyOH0.LqPTMoS3Q1-zdsOX9CMOahMynB5XAl-AxsjrVxSlse8"
-        @Volatile
-        private var INSTANCE: LeaderNetworkRepository? = null
+        private const val SUPABASE_URL = "https://xceqwexdufdgnmctsxcg.supabase.co"
+        // Publishable/anon keys are client-side identifiers; service_role is never shipped.
+        private const val SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjZXE3ZXhkdWZkZ25mY3RzeGNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4MzgxMjgsImV4cCI6MjEwNDQxNDEyOH0.LqPTMoS3Q1-zdsOX9CMOahMynB5XAl-AxsjrVxSlse8"
+        private const val RESET_REDIRECT = "https://sales-network-app.vercel.app/login"
 
-        fun getInstance(context: Context): LeaderNetworkRepository {
-            return INSTANCE ?: synchronized(this) {
-                val instance = LeaderNetworkRepository(context.applicationContext)
-                INSTANCE = instance
-                instance
-            }
+        @Volatile private var instance: LeaderNetworkRepository? = null
+
+        fun getInstance(context: Context): LeaderNetworkRepository = instance ?: synchronized(this) {
+            instance ?: LeaderNetworkRepository(context).also { instance = it }
         }
     }
 }

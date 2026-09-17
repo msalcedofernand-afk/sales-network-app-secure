@@ -31,8 +31,8 @@ class CustomerRepository private constructor(context: Context) {
             CustomerContact(
                 id = "c-001",
                 name = "MarÃ­a Elena Flores",
-                phone = "+51979123456",
-                whatsapp = "+51979123456",
+                phone = "+51970000000",
+                whatsapp = "+51970000000",
                 address = "Av. JosÃ© Balta 1240, Chiclayo",
                 city = "Chiclayo",
                 latitude = -6.7725,

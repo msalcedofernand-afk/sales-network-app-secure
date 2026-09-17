@@ -1,3 +1,21 @@
 import { client, json, user } from "../_shared/http.ts";
-Deno.serve(async req => { if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405); const u = await user(req); if (!u) return json({ error: "unauthorized" }, 401); const { cart_id, customer_id, idempotency_key } = await req.json(); if (!cart_id || !idempotency_key) return json({ error: "cart_id_and_idempotency_key_required" }, 400); const sb = client(req); const { data: cart } = await sb.from("carts").select("id,team_id,status").eq("id", cart_id).eq("user_id", u.id).eq("status", "ACTIVE").maybeSingle(); if (!cart) return json({ error: "active_cart_not_found" }, 404); const { data: items } = await sb.from("cart_items").select("quantity,product_id,products(sku,name,price_cents,available)").eq("cart_id", cart_id); if (!items?.length || items.some((row: any) => !row.products?.available)) return json({ error: "cart_empty_or_product_unavailable" }, 400); const total = items.reduce((sum: number, row: any) => sum + row.quantity * row.products.price_cents, 0); const { data: order, error } = await sb.from("orders").insert({ team_id: cart.team_id, user_id: u.id, customer_id, total_cents: total, idempotency_key }).select().single(); if (error) return json({ error: error.message }, 400); const lines = items.map((row: any) => ({ order_id: order.id, product_id: row.product_id, sku: row.products.sku, product_name: row.products.name, quantity: row.quantity, unit_price_cents: row.products.price_cents })); await sb.from("order_items").insert(lines); await sb.from("carts").update({ status: "CONVERTED" }).eq("id", cart_id); return json({ order }, 201); });
+
+Deno.serve(async req => {
+  if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
+  if (!await user(req)) return json({ error: "unauthorized" }, 401);
+  let body: { cart_id?: string; customer_id?: string | null; idempotency_key?: string };
+  try { body = await req.json(); } catch { return json({ error: "invalid_json" }, 400); }
+  if (!body.cart_id || !body.idempotency_key) return json({ error: "cart_id_and_idempotency_key_required" }, 400);
+
+  // The database function owns the transaction, price calculation, tenant
+  // validation and idempotency handling. The Edge Function only authenticates
+  // the request and returns its result.
+  const { data, error } = await client(req).rpc("checkout_cart", {
+    p_cart_id: body.cart_id,
+    p_customer_id: body.customer_id ?? null,
+    p_idempotency_key: body.idempotency_key,
+  });
+  if (error) return json({ error: error.message }, 400);
+  return json(data, data?.existing ? 200 : 201);
+});
 
