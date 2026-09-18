@@ -85,7 +85,7 @@ private val demoProducts = listOf(
     DemoProduct("Loción Corporal", "S/ 42,90", Color(0xFFE7D8B9))
 )
 
-@Preview(name = "01 - VV Boutique Premium", showBackground = true, widthDp = 390, heightDp = 844)
+@Preview(name = "07 - VV Boutique Premium", showBackground = true, widthDp = 390, heightDp = 844)
 @Composable
 private fun BoutiquePremiumDemo() {
     DemoScaffold(background = DemoCream, selected = "Inicio", labels = listOf("Inicio", "Catálogo", "Clientes", "Perfil"), accent = DemoTeal) {
@@ -121,7 +121,7 @@ private fun BoutiquePremiumDemo() {
     }
 }
 
-@Preview(name = "02 - Panel de ventas", showBackground = true, widthDp = 390, heightDp = 844)
+@Preview(name = "09 - Panel de ventas", showBackground = true, widthDp = 390, heightDp = 844)
 @Composable
 private fun SalesDashboardDemo() {
     DemoScaffold(background = Color(0xFFF4F7F6), selected = "Inicio", labels = listOf("Inicio", "Catálogo", "Pedidos", "Perfil"), accent = DemoTeal) {
@@ -162,7 +162,7 @@ private fun SalesDashboardDemo() {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview(name = "03 - Catálogo tienda", showBackground = true, widthDp = 390, heightDp = 844)
+@Preview(name = "08 - Catálogo tienda", showBackground = true, widthDp = 390, heightDp = 844)
 @Composable
 private fun CatalogStoreDemo() {
     DemoScaffold(background = Color.White, selected = "Catálogo", labels = listOf("Inicio", "Catálogo", "Pedidos", "Perfil"), accent = DemoCoral) {
@@ -201,7 +201,7 @@ private fun CatalogStoreDemo() {
     }
 }
 
-@Preview(name = "04 - Ruta de clientes", showBackground = true, widthDp = 390, heightDp = 844)
+@Preview(name = "11 - Ruta de clientes", showBackground = true, widthDp = 390, heightDp = 844)
 @Composable
 private fun CustomerRouteDemo() {
     DemoScaffold(background = Color(0xFFF4F6FF), selected = "Clientes", labels = listOf("Inicio", "Clientes", "Pedidos", "Perfil"), accent = DemoIndigo) {
@@ -235,7 +235,7 @@ private fun CustomerRouteDemo() {
     }
 }
 
-@Preview(name = "05 - Operación rápida", showBackground = true, widthDp = 390, heightDp = 844)
+@Preview(name = "12 - Operación rápida", showBackground = true, widthDp = 390, heightDp = 844)
 @Composable
 private fun QuickOperationsDemo() {
     val quickGreen = Color(0xFF2E7D5B)
