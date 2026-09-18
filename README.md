@@ -6,6 +6,11 @@ Aplicación Android Compose y catálogo Next.js para equipos de venta, con Supab
 
 Esta repo es una copia endurecida de `sales-network-app`. Se eliminaron las cuentas demo, contraseñas maestras y escrituras financieras directas. La base segura está documentada en [`docs/SECURITY_HARDENING.md`](docs/SECURITY_HARDENING.md).
 
+## Alcance del producto
+
+- Implementación actual: [`docs/IMPLEMENTACION_AHORA.md`](docs/IMPLEMENTACION_AHORA.md)
+- Roadmap, límites y limpieza: [`docs/ROADMAP_FUTURO_LIMITES_Y_LIMPIEZA.md`](docs/ROADMAP_FUTURO_LIMITES_Y_LIMPIEZA.md)
+
 ## Estructura
 
 - `app/`: aplicación Android Compose.
