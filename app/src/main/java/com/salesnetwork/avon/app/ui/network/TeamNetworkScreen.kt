@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.salesnetwork.avon.app.domain.model.User
@@ -504,5 +505,38 @@ fun TeamNetworkScreen(
                 }
             }
         }
+    }
+}
+
+@Preview(name = "Mi red", showBackground = true, widthDp = 390, heightDp = 844)
+@Composable
+private fun TeamNetworkScreenPreview() {
+    val previewLeader = User(
+        id = "leader-1",
+        name = "Ana Lider",
+        email = "ana@example.com",
+        role = UserRole.LIDER,
+        referralCode = "ANA2026"
+    )
+    val previewMember = User(
+        id = "member-1",
+        name = "Maria Vendedora",
+        email = "maria@example.com",
+        role = UserRole.MIEMBRO,
+        referralCode = "MARIA2026",
+        leaderCode = "ANA2026"
+    )
+
+    MaterialTheme {
+        TeamNetworkScreen(
+            currentUser = previewLeader,
+            teamMembers = listOf(previewMember),
+            networkCommissionTotal = 135.50,
+            allLeadersData = listOf(
+                LeaderSupervisionData(previewLeader, listOf(previewMember), 1, 850.0, 42.50)
+            ),
+            globalTotalSales = 850.0,
+            onLogout = {}
+        )
     }
 }

@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.salesnetwork.avon.app.domain.model.Product
@@ -255,6 +256,23 @@ fun CatalogScreen(
                     Text("Cerrar")
                 }
             }
+        )
+    }
+}
+
+@Preview(name = "Catalogo", showBackground = true, widthDp = 390, heightDp = 844)
+@Composable
+private fun CatalogScreenPreview() {
+    MaterialTheme {
+        CatalogScreen(
+            products = listOf(
+                Product("p1", "SKU-001", "Crema Hidratante", "Cuidado facial", 39.90, "", "Hidratacion diaria"),
+                Product("p2", "SKU-002", "Perfume VV", "Fragancias", 69.90, "", "Aroma fresco y duradero"),
+                Product("p3", "SKU-003", "Labial Color", "Maquillaje", 24.90, "", "Color intenso")
+            ),
+            isScraping = false,
+            onSyncWebCatalogClick = {},
+            onProductSelectedForOrder = {}
         )
     }
 }

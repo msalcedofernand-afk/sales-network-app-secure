@@ -22,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.salesnetwork.avon.app.domain.model.UserRole
@@ -334,6 +335,19 @@ fun LoginRegisterScreen(
                     Text("Cerrar")
                 }
             }
+        )
+    }
+}
+
+@Preview(name = "Login", showBackground = true, widthDp = 390, heightDp = 844)
+@Composable
+private fun LoginRegisterScreenPreview() {
+    MaterialTheme {
+        LoginRegisterScreen(
+            onLoginSuccess = {},
+            onRegisterLeader = { _, _, _ -> Result.success<Any>(Unit) },
+            onRegisterMember = { _, _, _, _ -> Result.success<Any>(Unit) },
+            onLoginClick = { _, _ -> Result.success<Any>(Unit) }
         )
     }
 }

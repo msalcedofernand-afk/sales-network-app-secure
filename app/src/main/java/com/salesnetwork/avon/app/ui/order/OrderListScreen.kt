@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.salesnetwork.avon.app.domain.model.CustomerContact
@@ -571,6 +572,38 @@ fun OrderListScreen(
                     Text("Cancelar")
                 }
             }
+        )
+    }
+}
+
+@Preview(name = "Pedidos", showBackground = true, widthDp = 390, heightDp = 844)
+@Composable
+private fun OrderListScreenPreview() {
+    val previewProduct = Product("p1", "SKU-001", "Crema Hidratante", "Cuidado facial", 39.90, "", "Hidratacion diaria")
+    val previewCustomer = CustomerContact("c1", "Maria Lopez", "987654321", "987654321", "Av. Balta 120")
+    val previewOrder = Order(
+        id = "o1",
+        customerId = previewCustomer.id,
+        customerName = previewCustomer.name,
+        leaderUserId = "leader-1",
+        items = listOf(OrderItem(previewProduct.sku, previewProduct.name, previewProduct.price, 2)),
+        status = OrderStatus.PENDIENTE,
+        paymentMethod = PaymentMethod.YAPE
+    )
+
+    MaterialTheme {
+        OrderListScreen(
+            orders = listOf(previewOrder),
+            totalSales = previewOrder.totalAmount,
+            directCommission = previewOrder.commissionLeader,
+            networkCommission = previewOrder.networkCommissionLeader,
+            totalProfit = previewOrder.commissionLeader + previewOrder.networkCommissionLeader,
+            pendingDebt = previewOrder.remainingDebt,
+            pendingCount = 1,
+            availableCustomers = listOf(previewCustomer),
+            availableProducts = listOf(previewProduct),
+            onUpdateStatus = { _, _ -> },
+            onShareTicket = { "Ticket de prueba" }
         )
     }
 }

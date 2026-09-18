@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.salesnetwork.avon.app.domain.model.CustomerContact
@@ -358,6 +359,21 @@ fun CustomerListScreen(
                     Text("Cancelar")
                 }
             }
+        )
+    }
+}
+
+@Preview(name = "Clientes", showBackground = true, widthDp = 390, heightDp = 844)
+@Composable
+private fun CustomerListScreenPreview() {
+    MaterialTheme {
+        CustomerListScreen(
+            customers = listOf(
+                CustomerContact("c1", "Maria Lopez", "987654321", "987654321", "Av. Balta 120", notes = "Prefiere Yape"),
+                CustomerContact("c2", "Rosa Garcia", "912345678", "912345678", "Urb. Santa Victoria")
+            ),
+            onAddCustomer = {},
+            onDeleteCustomer = {}
         )
     }
 }
