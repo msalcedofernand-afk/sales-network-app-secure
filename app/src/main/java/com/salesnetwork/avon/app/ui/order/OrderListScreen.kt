@@ -304,16 +304,6 @@ fun OrderListScreen(
                                 HorizontalDivider()
                                 Spacer(modifier = Modifier.height(8.dp))
 
-                                order.items.forEach { item ->
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Text("${item.quantity}x ${item.productName}", fontSize = 12.sp)
-                                        Text("S/ ${String.format("%.2f", item.subtotal)}", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-                                    }
-                                }
-
                                 Spacer(modifier = Modifier.height(8.dp))
 
                                 Row(

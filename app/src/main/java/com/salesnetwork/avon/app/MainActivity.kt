@@ -18,6 +18,8 @@ import androidx.compose.material3.Surface
 import com.salesnetwork.avon.app.ui.SalesNetworkMainApp
 import com.salesnetwork.avon.app.update.AppUpdateChecker
 
+private const val CATALOG_SHARE_LINK = "https://sales-network-app.vercel.app/catalogo"
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,6 +57,14 @@ class MainActivity : ComponentActivity() {
                         availableUpdate = availableUpdate,
                         onOpenUpdate = { url ->
                             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                        },
+                        catalogShareLink = CATALOG_SHARE_LINK,
+                        onShareCatalogLink = { link ->
+                            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_TEXT, "Catálogo VV Líderes Chiclayo: $link")
+                            }
+                            startActivity(Intent.createChooser(shareIntent, "Compartir catálogo"))
                         }
                     )
                 }

@@ -58,7 +58,9 @@ fun SalesNetworkMainApp(
     teamViewModel: TeamViewModel = viewModel(),
     orderViewModel: OrderViewModel = viewModel(),
     availableUpdate: AppUpdateInfo? = null,
-    onOpenUpdate: (String) -> Unit = {}
+    onOpenUpdate: (String) -> Unit = {},
+    catalogShareLink: String? = null,
+    onShareCatalogLink: (String) -> Unit = {}
 ) {
     val authState by authViewModel.uiState.collectAsState()
     val catalogState by catalogViewModel.uiState.collectAsState()
@@ -183,6 +185,8 @@ fun SalesNetworkMainApp(
                                 products = catalogState.products,
                                 isScraping = catalogState.isScraping,
                                 statusMessage = catalogState.statusMessage,
+                                shareLink = catalogShareLink,
+                                onShareLinkClick = onShareCatalogLink,
                                 onSyncWebCatalogClick = {
                                     catalogViewModel.scrapeOfficialWebCatalog()
                                 },

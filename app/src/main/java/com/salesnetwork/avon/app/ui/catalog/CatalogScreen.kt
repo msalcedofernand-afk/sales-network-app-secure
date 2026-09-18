@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -21,6 +22,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -33,7 +36,9 @@ fun CatalogScreen(
     isScraping: Boolean,
     onSyncWebCatalogClick: () -> Unit,
     onProductSelectedForOrder: (Product) -> Unit = {},
-    statusMessage: String? = null
+    statusMessage: String? = null,
+    shareLink: String? = null,
+    onShareLinkClick: (String) -> Unit = {}
 ) {
     var searchQuery by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf("Todos") }
@@ -79,20 +84,37 @@ fun CatalogScreen(
                     contentDescription = if (isScraping) "Actualizando catálogo" else "Actualizar catálogo",
                     modifier = Modifier.size(18.dp)
                 )
-                Spacer(Modifier.width(4.dp))
-                Text(if (isScraping) "..." else "Actualizar", maxLines = 1)
             }
         }
 
         Spacer(modifier = Modifier.height(12.dp))
 
         statusMessage?.takeIf { it.isNotBlank() }?.let { message ->
-            Text(
-                text = message,
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp)
-            )
+            Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp)) {
+                Text(
+                    text = message,
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.bodySmall
+                )
+                shareLink?.takeIf { it.isNotBlank() }?.let { link ->
+                    TextButton(
+                        onClick = { onShareLinkClick(link) },
+                        contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp)
+                    ) {
+                        Icon(Icons.Default.Share, contentDescription = "Compartir enlace", modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text("Compartir enlace")
+                    }
+                    Text(
+                        text = link,
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.bodySmall.copy(textDecoration = TextDecoration.Underline),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.clickable { onShareLinkClick(link) }
+                    )
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -294,7 +316,9 @@ private fun CatalogScreenPreview() {
             isScraping = false,
             onSyncWebCatalogClick = {},
             onProductSelectedForOrder = {},
-            statusMessage = "Catálogo listo para compartir."
+            statusMessage = "Catálogo listo para compartir.",
+            shareLink = "https://ejemplo.com/catalogo",
+            onShareLinkClick = {}
         )
     }
 }
