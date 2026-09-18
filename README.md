@@ -2,14 +2,17 @@
 
 Aplicación Android Compose y catálogo Next.js para equipos de venta, con Supabase Auth, PostgreSQL/RLS y Edge Functions.
 
-## Estado
+## Estado y plan
 
-Esta repo es una copia endurecida de `sales-network-app`. Se eliminaron las cuentas demo, contraseñas maestras y escrituras financieras directas. La base segura está documentada en [`docs/SECURITY_HARDENING.md`](docs/SECURITY_HARDENING.md).
+El estado del producto, lo implementado, lo pendiente, las prioridades, los límites y los criterios de aceptación se mantienen en un único documento maestro:
+
+- [`docs/PLAN_IMPLEMENTACION.md`](docs/PLAN_IMPLEMENTACION.md)
+
+No se debe crear un roadmap nuevo por cada implementación. Después de cada cambio se actualiza el documento maestro y su registro de cambios.
 
 ## Alcance del producto
 
-- Implementación actual: [`docs/IMPLEMENTACION_AHORA.md`](docs/IMPLEMENTACION_AHORA.md)
-- Roadmap, límites y limpieza: [`docs/ROADMAP_FUTURO_LIMITES_Y_LIMPIEZA.md`](docs/ROADMAP_FUTURO_LIMITES_Y_LIMPIEZA.md)
+Esta copia endurecida elimina cuentas demo, contraseñas maestras y escrituras financieras directas. La base segura está documentada en [`docs/SECURITY_HARDENING.md`](docs/SECURITY_HARDENING.md).
 
 ## Estructura
 
@@ -17,7 +20,7 @@ Esta repo es una copia endurecida de `sales-network-app`. Se eliminaron las cuen
 - `web/`: catálogo Next.js y flujos de carrito, clientes y pedidos.
 - `supabase/migrations/`: esquema y políticas RLS.
 - `supabase/functions/`: endpoints autenticados.
-- `docs/`: arquitectura, API, despliegue y seguridad.
+- `docs/`: plan maestro y referencias técnicas.
 
 ## Desarrollo web
 
@@ -27,7 +30,7 @@ npm ci
 npm run build
 ```
 
-Configura `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Nunca pongas `SUPABASE_SERVICE_ROLE_KEY` en `NEXT_PUBLIC_*`.
+Configura `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Nunca pongas `SUPABASE_SERVICE_ROLE_KEY` en variables `NEXT_PUBLIC_*`.
 
 ## Android
 
