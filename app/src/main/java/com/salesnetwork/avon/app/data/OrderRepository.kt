@@ -4,6 +4,8 @@ import android.content.Context
 import com.salesnetwork.avon.app.domain.model.Order
 import com.salesnetwork.avon.app.domain.model.OrderItem
 import com.salesnetwork.avon.app.domain.model.OrderStatus
+import com.salesnetwork.avon.app.domain.model.OrderWorkflow
+import com.salesnetwork.avon.app.domain.model.Payment
 import com.salesnetwork.avon.app.domain.model.PaymentMethod
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -57,15 +59,25 @@ class OrderRepository private constructor(context: Context) {
             status = if (amountPaid >= total && total > 0) OrderStatus.COBRADO else OrderStatus.PENDIENTE,
             paymentMethod = paymentMethod,
             amountPaid = amountPaid,
+            payments = if (amountPaid > 0 && total > 0) listOf(
+                Payment(
+                    orderId = "pending",
+                    amount = amountPaid.coerceAtMost(total),
+                    method = paymentMethod
+                )
+            ) else emptyList(),
             createdAt = "2026-09-08"
         )
-        _orders.value = listOf(order) + _orders.value
-        return order
+        val normalized = order.copy(
+            payments = order.payments.map { it.copy(orderId = order.id) }
+        )
+        _orders.value = listOf(normalized) + _orders.value
+        return normalized
     }
 
     fun updateOrderStatus(orderId: String, newStatus: OrderStatus) {
         _orders.value = _orders.value.map { order ->
-            if (order.id == orderId) {
+            if (order.id == orderId && OrderWorkflow.canTransition(order.status, newStatus)) {
                 order.copy(status = newStatus)
             } else {
                 order
@@ -74,11 +86,23 @@ class OrderRepository private constructor(context: Context) {
     }
 
     fun registerPayment(orderId: String, method: PaymentMethod, amount: Double) {
+        if (amount <= 0.0) return
         _orders.value = _orders.value.map { order ->
             if (order.id == orderId) {
                 val newPaid = (order.amountPaid + amount).coerceAtMost(order.totalAmount)
+                val acceptedAmount = newPaid - order.amountPaid
+                if (acceptedAmount <= 0.0) return@map order
                 val newStatus = if (newPaid >= order.totalAmount) OrderStatus.COBRADO else order.status
-                order.copy(paymentMethod = method, amountPaid = newPaid, status = newStatus)
+                order.copy(
+                    paymentMethod = method,
+                    amountPaid = newPaid,
+                    payments = order.payments + Payment(
+                        orderId = order.id,
+                        amount = acceptedAmount,
+                        method = method
+                    ),
+                    status = newStatus
+                )
             } else {
                 order
             }
@@ -112,6 +136,7 @@ class OrderRepository private constructor(context: Context) {
                 status = OrderStatus.COBRADO,
                 paymentMethod = PaymentMethod.YAPE,
                 amountPaid = 209.80,
+                payments = listOf(Payment(orderId = "ord-1001", amount = 209.80, method = PaymentMethod.YAPE)),
                 createdAt = "2026-09-05"
             ),
             Order(

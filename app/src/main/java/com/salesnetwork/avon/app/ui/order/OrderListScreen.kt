@@ -56,6 +56,9 @@ fun OrderListScreen(
     val context = LocalContext.current
     var showCreateDialog by remember { mutableStateOf(false) }
     var orderToDelete by remember { mutableStateOf<Order?>(null) }
+    var orderForPayment by remember { mutableStateOf<Order?>(null) }
+    var paymentAmount by remember { mutableStateOf("") }
+    var paymentMethod by remember { mutableStateOf(PaymentMethod.YAPE) }
     var orderKpiTitle by remember { mutableStateOf<String?>(null) }
     var orderKpiBody by remember { mutableStateOf<String?>(null) }
 
@@ -266,6 +269,7 @@ fun OrderListScreen(
                                                 OrderStatus.COBRADO -> Color(0xFF2E7D32)
                                                 OrderStatus.ENTREGADO -> Color(0xFF1976D2)
                                                 OrderStatus.PENDIENTE -> Color(0xFFE65100)
+                                                OrderStatus.CONFIRMADO -> Color(0xFF1565C0)
                                                 OrderStatus.CANCELADO -> Color(0xFFC62828)
                                             },
                                             shape = RoundedCornerShape(8.dp)
@@ -352,7 +356,9 @@ fun OrderListScreen(
                                         if (order.remainingDebt > 0) {
                                             OutlinedButton(
                                                 onClick = {
-                                                    onRegisterPayment(order.id, PaymentMethod.YAPE, order.totalAmount)
+                                                    orderForPayment = order
+                                                    paymentAmount = String.format("%.2f", order.remainingDebt)
+                                                    paymentMethod = PaymentMethod.YAPE
                                                 },
                                                 contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
                                             ) {
@@ -381,6 +387,46 @@ fun OrderListScreen(
                 }
             }
         }
+    }
+
+    orderForPayment?.let { order ->
+        AlertDialog(
+            onDismissRequest = { orderForPayment = null },
+            title = { Text("Registrar pago", fontWeight = FontWeight.Bold) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text("Saldo pendiente: S/ ${String.format("%.2f", order.remainingDebt)}")
+                    OutlinedTextField(
+                        value = paymentAmount,
+                        onValueChange = { paymentAmount = it },
+                        label = { Text("Monto recibido") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        listOf(PaymentMethod.YAPE, PaymentMethod.PLIN, PaymentMethod.EFECTIVO).forEach { method ->
+                            FilterChip(
+                                selected = paymentMethod == method,
+                                onClick = { paymentMethod = method },
+                                label = { Text(method.name, fontSize = 11.sp) }
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    val amount = paymentAmount.replace(',', '.').toDoubleOrNull()
+                    if (amount != null && amount > 0.0) {
+                        onRegisterPayment(order.id, paymentMethod, amount.coerceAtMost(order.remainingDebt))
+                        orderForPayment = null
+                    }
+                }) { Text("Guardar") }
+            },
+            dismissButton = {
+                TextButton(onClick = { orderForPayment = null }) { Text("Cancelar") }
+            }
+        )
     }
 
     // Modal Creador Interactivo de Pedidos

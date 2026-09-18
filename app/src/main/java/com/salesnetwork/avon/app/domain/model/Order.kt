@@ -11,8 +11,9 @@ data class OrderItem(
 
 enum class OrderStatus {
     PENDIENTE,
-    ENTREGADO,
+    CONFIRMADO,
     COBRADO,
+    ENTREGADO,
     CANCELADO
 }
 
@@ -37,6 +38,7 @@ data class Order(
     val status: OrderStatus = OrderStatus.PENDIENTE,
     val paymentMethod: PaymentMethod = PaymentMethod.PENDIENTE,
     val amountPaid: Double = 0.0,
+    val payments: List<Payment> = emptyList(),
     val createdAt: String = "2026-09-08"
 ) {
     val remainingDebt: Double get() = (totalAmount - amountPaid).coerceAtLeast(0.0)

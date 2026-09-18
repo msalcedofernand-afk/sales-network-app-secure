@@ -1,6 +1,8 @@
 ﻿package com.salesnetwork.avon.app
 
 import com.salesnetwork.avon.app.data.RouteEtaService
+import com.salesnetwork.avon.app.domain.model.OrderStatus
+import com.salesnetwork.avon.app.domain.model.OrderWorkflow
 import com.salesnetwork.avon.app.scraper.CatalogScraperEngine
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
@@ -56,5 +58,14 @@ class SalesNetworkModuleTest {
         assertTrue(eta.distanceKm > 0.0)
         assertTrue(eta.durationMinutes > 0)
         assertTrue(eta.formattedSummary.contains("min"))
+    }
+
+    @Test
+    fun testOrderWorkflowOnlyAllowsValidTransitions() {
+        assertTrue(OrderWorkflow.canTransition(OrderStatus.PENDIENTE, OrderStatus.CONFIRMADO))
+        assertTrue(OrderWorkflow.canTransition(OrderStatus.CONFIRMADO, OrderStatus.COBRADO))
+        assertTrue(OrderWorkflow.canTransition(OrderStatus.COBRADO, OrderStatus.ENTREGADO))
+        assertFalse(OrderWorkflow.canTransition(OrderStatus.PENDIENTE, OrderStatus.ENTREGADO))
+        assertFalse(OrderWorkflow.canTransition(OrderStatus.ENTREGADO, OrderStatus.PENDIENTE))
     }
 }
