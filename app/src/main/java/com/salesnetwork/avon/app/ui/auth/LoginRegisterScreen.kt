@@ -41,14 +41,14 @@ fun LoginRegisterScreen(
 
     var name by rememberSaveable { mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var showPassword by remember { mutableStateOf(false) }
+    var password by rememberSaveable { mutableStateOf("") }
+    var showPassword by rememberSaveable { mutableStateOf(false) }
     var leaderCode by rememberSaveable { mutableStateOf("") }
 
     var errorMessage by rememberSaveable { mutableStateOf<String?>(null) }
-    var showResetDialog by remember { mutableStateOf(false) }
-    var resetEmail by remember { mutableStateOf("") }
-    var resetMessage by remember { mutableStateOf<String?>(null) }
+    var showResetDialog by rememberSaveable { mutableStateOf(false) }
+    var resetEmail by rememberSaveable { mutableStateOf("") }
+    var resetMessage by rememberSaveable { mutableStateOf<String?>(null) }
 
     Box(
         modifier = Modifier
@@ -130,7 +130,7 @@ fun LoginRegisterScreen(
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
-                    label = { Text("Correo Electronico") },
+                    label = { Text("Correo electrónico") },
                     leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
@@ -141,7 +141,7 @@ fun LoginRegisterScreen(
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
-                    label = { Text("Contrasena") },
+                    label = { Text("Contraseña") },
                     leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
                     visualTransformation = if (showPassword) androidx.compose.ui.text.input.VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = { TextButton(onClick = { showPassword = !showPassword }) { Text(if (showPassword) "Ocultar" else "Ver") } },
@@ -168,7 +168,7 @@ fun LoginRegisterScreen(
                         FilterChip(
                             selected = selectedRole == UserRole.LIDER,
                             onClick = { selectedRole = UserRole.LIDER },
-                            label = { Text("Soy Lider de Red") },
+                            label = { Text("Soy líder de red") },
                             leadingIcon = { Icon(Icons.Default.Group, contentDescription = null) }
                         )
                         FilterChip(
@@ -189,7 +189,7 @@ fun LoginRegisterScreen(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(
-                                text = "CODIGO DE RED OBLIGATORIO: Para registrarte como vendedor debes ingresar el codigo de referido de tu Lider (ej. VV-2026).",
+                                text = "CÓDIGO DE RED OBLIGATORIO: Para registrarte como vendedora debes ingresar el código de referido de tu líder (ej. VV-2026).",
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = Color(0xFFE65100),
@@ -202,7 +202,7 @@ fun LoginRegisterScreen(
                         OutlinedTextField(
                             value = leaderCode,
                             onValueChange = { leaderCode = it.uppercase() },
-                            label = { Text("Codigo de invitacion") },
+                            label = { Text("Código de invitación") },
                             placeholder = { Text("Ej. VV-2026") },
                             leadingIcon = { Icon(Icons.Default.QrCode, contentDescription = null) },
                             modifier = Modifier.fillMaxWidth(),
@@ -218,14 +218,14 @@ fun LoginRegisterScreen(
                         errorMessage = null
                         if (isRegisterMode) {
                             if (name.isBlank() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches() || password.length < 6) {
-                                errorMessage = "Ingresa un correo valido y una contrasena de al menos 6 caracteres."
+                                errorMessage = "Ingresa un correo válido y una contraseña de al menos 6 caracteres."
                                 return@Button
                             }
                             val result = if (selectedRole == UserRole.LIDER) {
                                 onRegisterLeader(name.trim(), email.trim(), password)
                             } else {
                                 if (leaderCode.trim().isBlank()) {
-                                    errorMessage = "El codigo de la red es OBLIGATORIO para registrarte como vendedor."
+                                    errorMessage = "El código de la red es OBLIGATORIO para registrarte como vendedora."
                                     return@Button
                                 }
                                 onRegisterMember(name.trim(), email.trim(), password, leaderCode.trim())
@@ -237,7 +237,7 @@ fun LoginRegisterScreen(
                             }
                         } else {
                             if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches() || password.isBlank()) {
-                                errorMessage = "Ingresa un correo valido y tu contrasena."
+                                errorMessage = "Ingresa un correo válido y tu contraseña."
                                 return@Button
                             }
                             val result = onLoginClick(email.trim(), password)
@@ -254,7 +254,7 @@ fun LoginRegisterScreen(
                     shape = RoundedCornerShape(20.dp)
                 ) {
                     Text(
-                        text = if (isRegisterMode) "Crear Cuenta" else "Iniciar Sesion",
+                        text = if (isRegisterMode) "Crear cuenta" else "Iniciar sesión",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -270,7 +270,7 @@ fun LoginRegisterScreen(
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     ) {
                         Text(
-                            text = "Olvidaste tu contrasena?",
+                            text = "¿Olvidaste tu contraseña?",
                             fontSize = 13.sp,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -280,12 +280,15 @@ fun LoginRegisterScreen(
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                TextButton(onClick = {
-                    isRegisterMode = !isRegisterMode
-                    errorMessage = null
-                }) {
+                TextButton(
+                    onClick = {
+                        isRegisterMode = !isRegisterMode
+                        errorMessage = null
+                    },
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) {
                     Text(
-                        text = if (isRegisterMode) "Ya tienes cuenta? Inicia Sesion" else "No tienes cuenta? Registrate aqui"
+                        text = if (isRegisterMode) "¿Ya tienes cuenta? Inicia sesión" else "¿No tienes cuenta? Regístrate aquí"
                     )
                 }
             }
@@ -295,14 +298,14 @@ fun LoginRegisterScreen(
     if (showResetDialog) {
         AlertDialog(
             onDismissRequest = { showResetDialog = false },
-            title = { Text("Recuperar Contrasena", fontWeight = FontWeight.Bold) },
+            title = { Text("Recuperar contraseña", fontWeight = FontWeight.Bold) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Ingresa tu correo registrado y te enviaremos un enlace seguro para cambiar la contrasena:", fontSize = 13.sp)
+                    Text("Ingresa tu correo registrado y te enviaremos un enlace seguro para cambiar la contraseña:", fontSize = 13.sp)
                     OutlinedTextField(
                         value = resetEmail,
                         onValueChange = { resetEmail = it },
-                        label = { Text("Correo Electronico") },
+                        label = { Text("Correo electrónico") },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -321,7 +324,7 @@ fun LoginRegisterScreen(
                     onClick = {
                         val res = onResetPassword(resetEmail.trim())
                         if (res.isSuccess) {
-                            resetMessage = "OK: Revisa tu correo y completa el cambio de contrasena."
+                            resetMessage = "OK: Revisa tu correo y completa el cambio de contraseña."
                         } else {
                             resetMessage = res.exceptionOrNull()?.message ?: "Error al actualizar."
                         }

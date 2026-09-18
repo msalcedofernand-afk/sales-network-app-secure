@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ReceiptLong
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.LocationOn
@@ -33,6 +34,7 @@ import com.salesnetwork.avon.app.ui.catalog.CatalogScreen
 import com.salesnetwork.avon.app.ui.customer.CustomerListScreen
 import com.salesnetwork.avon.app.ui.network.TeamNetworkScreen
 import com.salesnetwork.avon.app.ui.order.OrderListScreen
+import com.salesnetwork.avon.app.ui.profile.ProfileScreen
 import com.salesnetwork.avon.app.ui.viewmodel.AuthViewModel
 import com.salesnetwork.avon.app.ui.viewmodel.CatalogViewModel
 import com.salesnetwork.avon.app.ui.viewmodel.CustomerViewModel
@@ -43,7 +45,8 @@ enum class SalesAppTab {
     NETWORK,
     CATALOG,
     CUSTOMERS,
-    ORDERS
+    ORDERS,
+    PROFILE
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -98,15 +101,16 @@ fun SalesNetworkMainApp(
                         title = {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.clickable { showCampaignMenu = true }
+                                modifier = if (selectedTab == SalesAppTab.PROFILE) Modifier else Modifier.clickable { showCampaignMenu = true }
                             ) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Text(
                                         text = when (selectedTab) {
-                                            SalesAppTab.NETWORK -> "Mi Red de Liderazgo"
-                                            SalesAppTab.CATALOG -> "Catalogo de Productos"
-                                            SalesAppTab.CUSTOMERS -> "Directorio de Clientes"
-                                            SalesAppTab.ORDERS -> "Pedidos & Cobranza"
+                                            SalesAppTab.NETWORK -> "Mi red de liderazgo"
+                                            SalesAppTab.CATALOG -> "Catálogo de productos"
+                                            SalesAppTab.CUSTOMERS -> "Directorio de clientes"
+                                            SalesAppTab.ORDERS -> "Pedidos y cobranza"
+                                            SalesAppTab.PROFILE -> "Mi perfil"
                                         },
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 17.sp
@@ -120,25 +124,27 @@ fun SalesNetworkMainApp(
                                         )
                                         Icon(
                                             Icons.Default.ArrowDropDown,
-                                            contentDescription = "Cambiar Campana",
+                                            contentDescription = "Cambiar campaña",
                                             modifier = Modifier.size(16.dp),
                                             tint = MaterialTheme.colorScheme.primary
                                         )
                                     }
                                 }
 
-                                DropdownMenu(
-                                    expanded = showCampaignMenu,
-                                    onDismissRequest = { showCampaignMenu = false }
-                                ) {
-                                    orderState.campaigns.forEach { c ->
-                                        DropdownMenuItem(
-                                            text = { Text(c, fontWeight = if (c == orderState.activeCampaign) FontWeight.Bold else FontWeight.Normal) },
-                                            onClick = {
-                                                orderViewModel.setCampaign(c)
-                                                showCampaignMenu = false
-                                            }
-                                        )
+                                if (selectedTab != SalesAppTab.PROFILE) {
+                                    DropdownMenu(
+                                        expanded = showCampaignMenu,
+                                        onDismissRequest = { showCampaignMenu = false }
+                                    ) {
+                                        orderState.campaigns.forEach { c ->
+                                            DropdownMenuItem(
+                                                text = { Text(c, fontWeight = if (c == orderState.activeCampaign) FontWeight.Bold else FontWeight.Normal) },
+                                                onClick = {
+                                                    orderViewModel.setCampaign(c)
+                                                    showCampaignMenu = false
+                                                }
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -176,6 +182,7 @@ fun SalesNetworkMainApp(
                             CatalogScreen(
                                 products = catalogState.products,
                                 isScraping = catalogState.isScraping,
+                                statusMessage = catalogState.statusMessage,
                                 onSyncWebCatalogClick = {
                                     catalogViewModel.scrapeOfficialWebCatalog()
                                 },
@@ -223,6 +230,13 @@ fun SalesNetworkMainApp(
                                 onShareTicket = { order -> orderViewModel.buildWhatsAppTicket(order) }
                             )
                         }
+
+                        SalesAppTab.PROFILE -> {
+                            ProfileScreen(
+                                currentUser = currentUser,
+                                onLogout = { authViewModel.logout() }
+                            )
+                        }
                     }
                 }
 
@@ -258,7 +272,7 @@ fun SalesNetworkMainApp(
 
                         FloatingNavIcon(
                             icon = Icons.Default.ShoppingCart,
-                            label = "Catalogo",
+                            label = "Catálogo",
                             isSelected = selectedTab == SalesAppTab.CATALOG,
                             onClick = { selectedTab = SalesAppTab.CATALOG }
                         )
@@ -275,6 +289,13 @@ fun SalesNetworkMainApp(
                             label = "Pedidos",
                             isSelected = selectedTab == SalesAppTab.ORDERS,
                             onClick = { selectedTab = SalesAppTab.ORDERS }
+                        )
+
+                        FloatingNavIcon(
+                            icon = Icons.Default.AccountCircle,
+                            label = "Perfil",
+                            isSelected = selectedTab == SalesAppTab.PROFILE,
+                            onClick = { selectedTab = SalesAppTab.PROFILE }
                         )
                     }
                 }

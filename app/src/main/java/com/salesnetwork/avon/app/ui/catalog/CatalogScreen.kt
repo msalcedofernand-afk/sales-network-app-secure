@@ -9,7 +9,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import coil.compose.AsyncImage
 import androidx.compose.ui.layout.ContentScale
-import com.salesnetwork.avon.app.ui.SectionIntro
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
@@ -33,7 +32,8 @@ fun CatalogScreen(
     products: List<Product>,
     isScraping: Boolean,
     onSyncWebCatalogClick: () -> Unit,
-    onProductSelectedForOrder: (Product) -> Unit = {}
+    onProductSelectedForOrder: (Product) -> Unit = {},
+    statusMessage: String? = null
 ) {
     var searchQuery by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf("Todos") }
@@ -55,24 +55,45 @@ fun CatalogScreen(
             .background(MaterialTheme.colorScheme.background)
             .padding(16.dp)
     ) {
-        SectionIntro("VV / Colecciones", "Encuentra tu proxima venta", "${products.size} productos para explorar y compartir.")
-        TextButton(onClick = onSyncWebCatalogClick, enabled = !isScraping, modifier = Modifier.align(Alignment.End)) {
-            Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(18.dp))
-            Spacer(Modifier.width(8.dp))
-            Text(if (isScraping) "Actualizando..." else "Actualizar catalogo")
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                placeholder = { Text("Buscar producto o SKU...", maxLines = 1) },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Buscar") },
+                modifier = Modifier.weight(1f),
+                singleLine = true,
+                shape = RoundedCornerShape(17.dp)
+            )
+            TextButton(
+                onClick = onSyncWebCatalogClick,
+                enabled = !isScraping,
+                modifier = Modifier.widthIn(min = 88.dp)
+            ) {
+                Icon(
+                    Icons.Default.Refresh,
+                    contentDescription = if (isScraping) "Actualizando catálogo" else "Actualizar catálogo",
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(Modifier.width(4.dp))
+                Text(if (isScraping) "..." else "Actualizar", maxLines = 1)
+            }
         }
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
-            placeholder = { Text("Buscar producto o SKU...") },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            shape = RoundedCornerShape(20.dp)
-        )
+        statusMessage?.takeIf { it.isNotBlank() }?.let { message ->
+            Text(
+                text = message,
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp)
+            )
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -99,7 +120,7 @@ fun CatalogScreen(
                     .weight(1f),
                 contentAlignment = Alignment.Center
             ) {
-                Text("No se encontraron productos en el catalogo.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("No se encontraron productos en el catálogo.", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         } else {
             LazyVerticalGrid(
@@ -130,7 +151,7 @@ fun CatalogScreen(
                             ) {
                                 Text(
                                     text = product.category,
-                                    fontSize = 10.sp,
+                                    fontSize = 15.sp,
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
                                     color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -200,7 +221,7 @@ fun CatalogScreen(
                     }
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(p.name, fontWeight = FontWeight.ExtraBold, fontSize = 17.sp)
-                    Text("Codigo SKU: ${p.sku}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("Código SKU: ${p.sku}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             },
             text = {
@@ -229,7 +250,7 @@ fun CatalogScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Precio Campana:", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                        Text("Precio de campaña:", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                         Text(
                             "S/ ${String.format("%.2f", p.price)}",
                             fontWeight = FontWeight.Black,
@@ -272,7 +293,8 @@ private fun CatalogScreenPreview() {
             ),
             isScraping = false,
             onSyncWebCatalogClick = {},
-            onProductSelectedForOrder = {}
+            onProductSelectedForOrder = {},
+            statusMessage = "Catálogo listo para compartir."
         )
     }
 }

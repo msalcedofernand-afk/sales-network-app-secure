@@ -99,7 +99,7 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
         sb.append("*VV CHICLAYO - COMPROBANTE DE PEDIDO*\n")
         sb.append("------------------------------------\n")
         sb.append("Cliente: ${order.customerName}\n")
-        sb.append("Campana: ${order.campaignCode} | Fecha: ${order.createdAt}\n")
+        sb.append("Campaña: ${order.campaignCode} | Fecha: ${order.createdAt}\n")
         sb.append("------------------------------------\n")
         sb.append("*DETALLE DE PRODUCTOS:*\n")
         order.items.forEach { item ->
@@ -112,9 +112,9 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
         }
         if (order.remainingDebt > 0) {
             sb.append("*SALDO PENDIENTE:* S/ ${String.format("%.2f", order.remainingDebt)}\n")
-            sb.append("\nPuedes cancelar tu saldo por Yape o Plin al numero registrado de tu lider VV.")
+            sb.append("\nPuedes cancelar tu saldo por Yape o Plin al número registrado de tu líder VV.")
         } else {
-            sb.append("Estado: CANCELADO CON EXITO\n")
+            sb.append("Estado: CANCELADO CON ÉXITO\n")
         }
         sb.append("\nGracias por tu preferencia.")
         return sb.toString()

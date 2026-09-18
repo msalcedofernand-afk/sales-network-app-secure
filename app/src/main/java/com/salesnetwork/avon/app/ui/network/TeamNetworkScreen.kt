@@ -59,7 +59,7 @@ fun TeamNetworkScreen(
             .background(MaterialTheme.colorScheme.background)
             .padding(16.dp)
     ) {
-        SectionIntro("VV / Tu espacio", "Hola, ${currentUser.name.substringBefore(" ")}", "Tu equipo y sus resultados, mas cerca.")
+        SectionIntro("VV / Tu espacio", "Hola, ${currentUser.name.substringBefore(" ")}", "Tu equipo y sus resultados, más cerca.")
         Spacer(Modifier.height(16.dp))
         // Cabecera Principal
         Row(
@@ -82,7 +82,7 @@ fun TeamNetworkScreen(
             }
 
             IconButton(onClick = onLogout) {
-                Icon(Icons.Default.ExitToApp, contentDescription = "Cerrar Sesion", tint = MaterialTheme.colorScheme.primary)
+                Icon(Icons.Default.ExitToApp, contentDescription = "Cerrar sesión", tint = MaterialTheme.colorScheme.primary)
             }
         }
 
@@ -160,7 +160,7 @@ fun TeamNetworkScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column {
-                            Text("CODIGO DE TU EQUIPO:", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("CÓDIGO DE TU EQUIPO:", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Text(
                                 text = currentUser.referralCode,
                                 fontWeight = FontWeight.Black,
@@ -173,8 +173,8 @@ fun TeamNetworkScreen(
                             OutlinedButton(
                                 onClick = {
                                     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                    clipboard.setPrimaryClip(ClipData.newPlainText("Codigo Lider", currentUser.referralCode))
-                                    Toast.makeText(context, "Codigo copiado al portapapeles", Toast.LENGTH_SHORT).show()
+                                    clipboard.setPrimaryClip(ClipData.newPlainText("Código de líder", currentUser.referralCode))
+                                    Toast.makeText(context, "Código copiado al portapapeles", Toast.LENGTH_SHORT).show()
                                 },
                                 contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp)
                             ) {
@@ -217,14 +217,14 @@ fun TeamNetworkScreen(
                     modifier = Modifier
                         .weight(1f)
                         .clickable {
-                            kpiDetailTitle = "Detalle de Lideres"
-                            kpiDetailBody = "Actualmente hay ${allLeadersData.size} lideres registrados supervisando redes en Chiclayo y distritos aledaños."
+                            kpiDetailTitle = "Detalle de líderes"
+                            kpiDetailBody = "Actualmente hay ${allLeadersData.size} líderes registrados supervisando redes en Chiclayo y distritos aledaños."
                         },
                     shape = RoundedCornerShape(20.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
-                        Text("Lideres", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("Líderes", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(modifier = Modifier.height(2.dp))
                         Text("${allLeadersData.size}", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = MaterialTheme.colorScheme.primary)
                     }
@@ -234,8 +234,8 @@ fun TeamNetworkScreen(
                     modifier = Modifier
                         .weight(1f)
                         .clickable {
-                            kpiDetailTitle = "Detalle de Vendedoras"
-                            kpiDetailBody = "Un total de $totalVendedoras vendedoras integran la organizacion.\n$totalActivas se encuentran activas en la campana actual."
+                            kpiDetailTitle = "Detalle de vendedoras"
+                            kpiDetailBody = "Un total de $totalVendedoras vendedoras integran la organización.\n$totalActivas se encuentran activas en la campaña actual."
                         },
                     shape = RoundedCornerShape(20.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
@@ -251,14 +251,14 @@ fun TeamNetworkScreen(
                     modifier = Modifier
                         .weight(1.2f)
                         .clickable {
-                            kpiDetailTitle = "Detalle de Facturacion"
-                            kpiDetailBody = "Volumen global facturado en Campana Activa: S/ ${String.format("%.2f", facturacionVal)} entre todos los equipos."
+                            kpiDetailTitle = "Detalle de facturación"
+                            kpiDetailBody = "Volumen global facturado en campaña activa: S/ ${String.format("%.2f", facturacionVal)} entre todos los equipos."
                         },
                     shape = RoundedCornerShape(20.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
-                        Text("Facturacion", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("Facturación", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(modifier = Modifier.height(2.dp))
                         Text("S/ ${String.format("%.2f", facturacionVal)}", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color(0xFF2E7D32))
                     }
@@ -320,7 +320,7 @@ fun TeamNetworkScreen(
                                     Spacer(modifier = Modifier.width(10.dp))
                                     Column {
                                         Text(leaderData.leader.name, fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                                        Text("Codigo Red: ${leaderData.leader.referralCode}", fontSize = 13.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                                        Text("Código de red: ${leaderData.leader.referralCode}", fontSize = 13.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
                                     }
                                 }
 
@@ -349,7 +349,7 @@ fun TeamNetworkScreen(
                             ) {
                                 Column {
                                     Text("Ventas de su Equipo: S/ ${String.format("%.2f", leaderData.totalTeamSales)}", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-                                    Text("Sobrecomision Lider (5%): S/ ${String.format("%.2f", leaderData.networkCommission)}", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text("Sobrecomisión del líder (5%): S/ ${String.format("%.2f", leaderData.networkCommission)}", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
 
                                 IconButton(onClick = { expanded = !expanded }) {
@@ -365,7 +365,7 @@ fun TeamNetworkScreen(
                                 Text("Vendedoras en la red de ${leaderData.leader.name}:", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                                 Spacer(modifier = Modifier.height(4.dp))
                                 if (leaderData.members.isEmpty()) {
-                                    Text("No tiene vendedoras registradas aun.", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text("No tiene vendedoras registradas aún.", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 } else {
                                     leaderData.members.forEach { m ->
                                         Row(
@@ -397,7 +397,7 @@ fun TeamNetworkScreen(
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                     ) {
                         Column(modifier = Modifier.padding(12.dp)) {
-                            Text("Sobrecomision Red (5%)", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("Sobrecomisión de red (5%)", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Text(
                                 text = "S/ ${String.format("%.2f", networkCommissionTotal)}",
                                 fontWeight = FontWeight.ExtraBold,
@@ -422,7 +422,7 @@ fun TeamNetworkScreen(
                                 fontSize = 17.sp,
                                 color = if (activeCount > 0) Color(0xFF2E7D32) else Color(0xFFC62828)
                             )
-                            Text("En campana activa", fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("En campaña activa", fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }
@@ -445,7 +445,7 @@ fun TeamNetworkScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Aun no tienes vendedores registrados.\nComparte tu codigo ${currentUser.referralCode} para inscribir miembros.",
+                        text = "Aún no tienes vendedores registrados.\nComparte tu código ${currentUser.referralCode} para inscribir miembros.",
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center
                     )

@@ -5,7 +5,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
-import com.salesnetwork.avon.app.ui.SectionIntro
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -98,7 +97,6 @@ fun OrderListScreen(
                 .padding(padding)
                 .padding(16.dp)
         ) {
-            SectionIntro("VV / Ventas", "Tu negocio en movimiento", "Pedidos, cobros y entregas en un solo lugar.")
 
             Spacer(modifier = Modifier.height(14.dp))
 
@@ -442,7 +440,7 @@ fun OrderListScreen(
 
                     HorizontalDivider()
 
-                    Text("2. Selecciona Productos del Catalogo:", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                    Text("2. Selecciona productos del catálogo:", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
 
                     availableProducts.take(4).forEach { product ->
                         val qty = cartItems[product.sku] ?: 0
@@ -512,7 +510,7 @@ fun OrderListScreen(
                         )
                     }
 
-                    Text("3. Metodo de Cobro:", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                    Text("3. Método de cobro:", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
 
                     Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                         FilterChip(

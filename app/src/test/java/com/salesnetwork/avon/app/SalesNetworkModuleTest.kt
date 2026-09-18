@@ -16,7 +16,7 @@ class SalesNetworkModuleTest {
         assertNotNull(products)
         assertTrue(products.isNotEmpty())
         assertEquals(5, products.size)
-        assertTrue(products.any { it.category == "Perfumeria" })
+        assertTrue(products.any { it.category == "Perfumería" })
         assertTrue(products.any { it.name.contains("Far Away") })
     }
 

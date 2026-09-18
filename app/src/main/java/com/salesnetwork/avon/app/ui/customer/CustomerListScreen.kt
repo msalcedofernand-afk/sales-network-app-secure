@@ -5,7 +5,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
-import com.salesnetwork.avon.app.ui.SectionIntro
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -86,7 +85,6 @@ fun CustomerListScreen(
                 .padding(padding)
                 .padding(16.dp)
         ) {
-            SectionIntro("VV / Relaciones", "Cada contacto cuenta", "Organiza tus clientes y prepara tu proxima visita.")
 
             Spacer(modifier = Modifier.height(14.dp))
 
@@ -186,7 +184,7 @@ fun CustomerListScreen(
                                             },
                                             contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp)
                                         ) {
-                                            Icon(Icons.Default.Phone, contentDescription = null, modifier = Modifier.size(14.dp))
+                                            Icon(Icons.Default.Phone, contentDescription = "Llamar", modifier = Modifier.size(14.dp))
                                             Spacer(modifier = Modifier.width(4.dp))
                                             Text("Llamar", fontSize = 13.sp)
                                         }
@@ -198,7 +196,7 @@ fun CustomerListScreen(
                                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF25D366)),
                                             contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp)
                                         ) {
-                                            Icon(Icons.AutoMirrored.Filled.Send, contentDescription = null, modifier = Modifier.size(14.dp), tint = Color.White)
+                                            Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "WhatsApp", modifier = Modifier.size(14.dp), tint = Color.White)
                                             Spacer(modifier = Modifier.width(4.dp))
                                             Text("WhatsApp", fontSize = 13.sp, color = Color.White)
                                         }
@@ -217,7 +215,7 @@ fun CustomerListScreen(
                                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
                                             contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp)
                                         ) {
-                                            Icon(Icons.Default.Navigation, contentDescription = null, modifier = Modifier.size(14.dp), tint = Color.White)
+                                            Icon(Icons.Default.Navigation, contentDescription = "Navegar", modifier = Modifier.size(14.dp), tint = Color.White)
                                             Spacer(modifier = Modifier.width(4.dp))
                                             Text("Navegar", fontSize = 13.sp, color = Color.White)
                                         }
@@ -291,12 +289,12 @@ fun CustomerListScreen(
                         value = newPhone,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                         onValueChange = { newPhone = it },
-                        label = { Text("Telefono / WhatsApp") },
+                        label = { Text("Teléfono / WhatsApp") },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    Text("Selecciona Zona GPS en Chiclayo:", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                    Text("Selecciona zona GPS en Chiclayo:", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
 
                     Box {
                         OutlinedButton(onClick = { zoneMenuExpanded = true }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
@@ -316,7 +314,7 @@ fun CustomerListScreen(
                     OutlinedTextField(
                         value = newAddress,
                         onValueChange = { newAddress = it },
-                        label = { Text("Direccion Especifica") },
+                        label = { Text("Dirección específica") },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )

@@ -13,7 +13,7 @@ object ContactActionHelper {
     fun openPhoneDialer(context: Context, phoneNumber: String) {
         val cleanPhone = phoneNumber.replace("[^0-9+]".toRegex(), "")
         if (cleanPhone.isEmpty()) {
-            Toast.makeText(context, "Numero de telefono no valido", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Número de teléfono no válido", Toast.LENGTH_SHORT).show()
             return
         }
         try {
@@ -22,14 +22,14 @@ object ContactActionHelper {
             }
             context.startActivity(intent)
         } catch (e: Exception) {
-            Toast.makeText(context, "No se pudo abrir el marcador telefonico", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "No se pudo abrir el marcador telefónico", Toast.LENGTH_SHORT).show()
         }
     }
 
     fun openWhatsAppChat(context: Context, phoneNumber: String, initialMessage: String = "") {
         val digitsOnly = phoneNumber.replace("[^0-9]".toRegex(), "")
         if (digitsOnly.isEmpty()) {
-            Toast.makeText(context, "Numero de WhatsApp no valido", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Número de WhatsApp no válido", Toast.LENGTH_SHORT).show()
             return
         }
         val formattedPhone = if (!digitsOnly.startsWith("51") && digitsOnly.length == 9) {
@@ -46,7 +46,7 @@ object ContactActionHelper {
             }
             context.startActivity(intent)
         } catch (e: Exception) {
-            Toast.makeText(context, "WhatsApp no esta instalado o no se puede abrir", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "WhatsApp no está instalado o no se puede abrir", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -58,7 +58,7 @@ object ContactActionHelper {
             val encodedDest = Uri.encode(address)
             Uri.parse("https://www.google.com/maps/dir/?api=1&destination=$encodedDest&travelmode=driving")
         } else {
-            Toast.makeText(context, "Direccion o ubicacion insuficiente para calcular ruta", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Dirección o ubicación insuficiente para calcular la ruta", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -73,10 +73,10 @@ object ContactActionHelper {
             try {
                 context.startActivity(Intent(Intent.ACTION_VIEW, webDirUri))
             } catch (ex: Exception) {
-                Toast.makeText(context, "No se pudo abrir la navegacion de ruta", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "No se pudo abrir la navegación de ruta", Toast.LENGTH_SHORT).show()
             }
         } catch (e: Exception) {
-            Toast.makeText(context, "No se pudo iniciar la navegacion de ruta", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "No se pudo iniciar la navegación de ruta", Toast.LENGTH_SHORT).show()
         }
     }
 }
