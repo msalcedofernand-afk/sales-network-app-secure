@@ -631,3 +631,67 @@ private fun OrderCheckoutDialogPreview() {
         )
     }
 }
+
+@Preview(name = "Checkout - Cliente", showBackground = true, widthDp = 390, heightDp = 844)
+@Composable
+private fun CheckoutCustomerStepPreview() {
+    MaterialTheme {
+        Surface(modifier = Modifier.fillMaxSize()) {
+            CustomerStep(
+                customers = listOf(
+                    CustomerContact("c1", "María López", "987654321", "987654321", "Av. Balta 120"),
+                    CustomerContact("c2", "Rosa García", "912345678", "912345678", "Santa Victoria")
+                ),
+                query = "",
+                selectedCustomerId = "c1",
+                onQueryChange = {},
+                onSelect = {}
+            )
+        }
+    }
+}
+
+@Preview(name = "Checkout - Productos", showBackground = true, widthDp = 390, heightDp = 844)
+@Composable
+private fun CheckoutProductStepPreview() {
+    val products = listOf(
+        Product("p1", "SKU-001", "Crema Hidratante", "Cuidado facial", 39.90, "", "Hidratación diaria", stockAvailable = 12),
+        Product("p2", "SKU-002", "Perfume VV", "Fragancias", 69.90, "", "Aroma fresco", stockAvailable = 4)
+    )
+    MaterialTheme {
+        Surface(modifier = Modifier.fillMaxSize()) {
+            ProductStep(
+                products = products,
+                categories = listOf("Todos", "Cuidado facial", "Fragancias"),
+                selectedCategory = "Todos",
+                query = "",
+                cartItems = mapOf("SKU-001" to 2),
+                onQueryChange = {},
+                onCategoryChange = {},
+                onQuantityChange = { _, _ -> }
+            )
+        }
+    }
+}
+
+@Preview(name = "Checkout - Pago", showBackground = true, widthDp = 390, heightDp = 844)
+@Composable
+private fun CheckoutPaymentStepPreview() {
+    val product = Product("p1", "SKU-001", "Crema Hidratante", "Cuidado facial", 39.90, "", "Hidratación diaria")
+    MaterialTheme {
+        Surface(modifier = Modifier.fillMaxSize()) {
+            PaymentStep(
+                customerName = "María López",
+                total = 79.80,
+                paymentAmount = "40.00",
+                selectedPaymentMethod = PaymentMethod.YAPE,
+                effectivePaymentAmount = 40.00,
+                remainingBalance = 39.80,
+                cartItems = mapOf("SKU-001" to 2),
+                products = listOf(product),
+                onPaymentAmountChange = {},
+                onPaymentMethodChange = {}
+            )
+        }
+    }
+}

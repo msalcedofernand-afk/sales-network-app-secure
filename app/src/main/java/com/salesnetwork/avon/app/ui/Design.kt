@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -80,6 +81,33 @@ fun EmptyPanel(title: String, description: String) {
         ) {
             Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
             Text(description, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+}
+
+@Preview(name = "Componente - Encabezado", showBackground = true, widthDp = 390)
+@Composable
+private fun SectionIntroPreview() {
+    MaterialTheme {
+        Surface(modifier = Modifier.padding(16.dp), color = SalesDesignTokens.Paper) {
+            SectionIntro(
+                kicker = "VV / Tu espacio",
+                title = "Hola, Ana",
+                description = "Tu equipo y sus resultados, más cerca."
+            )
+        }
+    }
+}
+
+@Preview(name = "Componente - Estado vacío", showBackground = true, widthDp = 390)
+@Composable
+private fun EmptyPanelPreview() {
+    MaterialTheme {
+        Surface(modifier = Modifier.padding(16.dp), color = SalesDesignTokens.Paper) {
+            EmptyPanel(
+                title = "Aún no hay pedidos",
+                description = "Crea tu primer pedido para comenzar a ver el movimiento de esta campaña."
+            )
         }
     }
 }

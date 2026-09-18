@@ -24,6 +24,7 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -367,5 +368,81 @@ fun FloatingNavIcon(
             Spacer(Modifier.height(4.dp))
             Text(label, fontSize = 11.sp, color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant)
         }
+    }
+}
+
+@Preview(name = "Menú inferior", showBackground = true, widthDp = 390, heightDp = 160)
+@Composable
+private fun FloatingNavigationPreview() {
+    MaterialTheme {
+        Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {
+            Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Bottom) {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.surface,
+                    tonalElevation = 2.dp,
+                    shadowElevation = 4.dp
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        FloatingNavIcon(Icons.Default.Group, "Equipo", true, {})
+                        FloatingNavIcon(Icons.Default.ShoppingCart, "Catálogo", false, {})
+                        FloatingNavIcon(Icons.Default.LocationOn, "Clientes", false, {})
+                        FloatingNavIcon(Icons.AutoMirrored.Filled.ReceiptLong, "Pedidos", false, {})
+                        FloatingNavIcon(Icons.Default.AccountCircle, "Perfil", false, {})
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Preview(name = "Menú de campaña", showBackground = true, widthDp = 390, heightDp = 260)
+@Composable
+private fun CampaignMenuPreview() {
+    MaterialTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(24.dp)
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Mi red de liderazgo", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Text("Menú de selección de campaña", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                HorizontalDivider()
+                listOf("C-01-2026", "C-02-2026", "C-03-2026").forEachIndexed { index, campaign ->
+                    Surface(
+                        onClick = {},
+                        color = if (index == 0) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(campaign, modifier = Modifier.padding(12.dp), fontWeight = if (index == 0) FontWeight.Bold else FontWeight.Normal)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Preview(name = "Banner de actualización", showBackground = true, widthDp = 390, heightDp = 180)
+@Composable
+private fun UpdateBannerPreview() {
+    MaterialTheme {
+        UpdateBanner(
+            info = AppUpdateInfo(
+                versionCode = 44,
+                versionName = "1.0.0",
+                channel = "stable",
+                apkUrl = "https://example.com/app.apk",
+                releaseNotes = "Nuevo checkout de pedidos con pagos parciales.",
+                mandatory = false
+            ),
+            onOpenUpdate = {}
+        )
     }
 }
