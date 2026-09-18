@@ -1,45 +1,22 @@
 # Sales Network Secure
 
-Aplicación Android Compose y catálogo Next.js para equipos de venta, con Supabase Auth, PostgreSQL/RLS y Edge Functions.
+Aplicación Android nativa con Jetpack Compose, catálogo Next.js y backend Supabase para equipos de venta directa.
 
-## Estado y plan
+Toda la documentación del producto está consolidada en [`docs/DOCUMENTACION.md`](docs/DOCUMENTACION.md).
 
-El estado del producto, lo implementado, lo pendiente, las prioridades, los límites y los criterios de aceptación se mantienen en un único documento maestro:
+El documento único contiene:
 
-- [`docs/PLAN_IMPLEMENTACION.md`](docs/PLAN_IMPLEMENTACION.md)
-
-No se debe crear un roadmap nuevo por cada implementación. Después de cada cambio se actualiza el documento maestro y su registro de cambios.
-
-## Alcance del producto
-
-Esta copia endurecida elimina cuentas demo, contraseñas maestras y escrituras financieras directas. La base segura está documentada en [`docs/SECURITY_HARDENING.md`](docs/SECURITY_HARDENING.md).
+- estado actual y roadmap;
+- arquitectura, API, base de datos y seguridad;
+- diseño UI/UX y accesibilidad;
+- desarrollo, pruebas, despliegue y actualizaciones;
+- criterios de aceptación e historial.
 
 ## Estructura
 
 - `app/`: aplicación Android Compose.
-- `web/`: catálogo Next.js y flujos de carrito, clientes y pedidos.
-- `supabase/migrations/`: esquema y políticas RLS.
-- `supabase/functions/`: endpoints autenticados.
-- `docs/`: plan maestro y referencias técnicas.
+- `web/`: catálogo Next.js.
+- `supabase/`: migraciones, funciones y semillas de referencia.
+- `docs/DOCUMENTACION.md`: referencia única del producto.
 
-## Desarrollo web
-
-```powershell
-cd web
-npm ci
-npm run build
-```
-
-Configura `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Nunca pongas `SUPABASE_SERVICE_ROLE_KEY` en variables `NEXT_PUBLIC_*`.
-
-## Android
-
-```powershell
-.\gradlew.bat :app:testDebugUnitTest
-.\gradlew.bat :app:lintDebug
-.\gradlew.bat :app:assembleDebug
-```
-
-## Supabase
-
-Aplica las migraciones en orden y configura Auth con verificación de correo y recuperación. Usa un proyecto de staging para validar el aislamiento entre dos equipos antes de producción.
+Para comandos, configuración y reglas de trabajo, consulta la documentación única antes de realizar cambios.

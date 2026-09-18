@@ -1,14 +1,18 @@
-# Reglas del Proyecto - Avon Líderes Chiclayo
+# Reglas del proyecto — Sales Network Secure
 
 ## Versiones
-- Cada build incrementa `versionCode` automáticamente (vía `version.properties` + `build.gradle.kts`).
-- No tocar `version.properties` manualmente — el build lo gestiona solo.
+
+- Cada build incrementa `versionCode` automáticamente mediante `version.properties` y `build.gradle.kts`.
+- No editar `version.properties` manualmente; el build lo gestiona.
 - `versionName` se actualiza manualmente solo en cambios mayores.
 
 ## Instalación
-- Siempre usar `adb install -r` (reemplaza sin desinstalar).
-- Nunca desinstalar la app — el versionCode ascendente garantiza actualización limpia.
+
+- Usar `adb install -r` para actualizar sin desinstalar.
+- No desinstalar la app durante las pruebas salvo que exista una razón explícita.
 
 ## Cambios
-- Registrar todo cambio en `REGISTRO_CAMBIOS_AVON.md`.
-- Incluir: qué, por qué, archivos modificados, resultado del build.
+
+- Registrar cambios relevantes en `docs/DOCUMENTACION.md`.
+- Incluir qué cambió, por qué, archivos modificados y resultado de las pruebas.
+- Mantener la documentación del producto en ese único archivo.
